@@ -3,6 +3,7 @@
 using namespace std;
 
 class Concert {
+    int id;
     string title;
     int rating;
 

@@ -7,6 +7,7 @@ using namespace std;
 
 class Session
 {
+    int id;
     Hall hall;
     Concert concert;
     string startTime;

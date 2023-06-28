@@ -6,6 +6,7 @@ using namespace std;
 class Ticket
 {
 protected:
+    int id;
     int row;
     int seat;
 
