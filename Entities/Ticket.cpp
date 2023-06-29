@@ -9,7 +9,7 @@ protected:
     int id;
     int row;
     int seat;
-
+    int sessionId;
     bool isOccupied = false;
 
 public:
@@ -17,6 +17,17 @@ public:
 
     Ticket(int ticketRow, int ticketSeat)
         : row(ticketRow), seat(ticketSeat) {}
+
+    Ticket(int ticketSessionId, int ticketRow, int ticketSeat)
+        : sessionId(ticketSessionId), row(ticketRow), seat(ticketSeat) {}
+
+    Ticket(int ticketId, int ticketSessionId, int ticketRow, int ticketSeat, bool isTicketOccupied)
+        : id(ticketId), sessionId(ticketSessionId), row(ticketRow), seat(ticketSeat), isOccupied(isTicketOccupied) {}
+
+    int getId() { return id; }
+    int getRow() { return row; }
+    int getSeat() { return seat; }
+    int getSessionId() { return sessionId; }
 
     string getSeatNumberAsString()
     {

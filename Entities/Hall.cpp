@@ -9,6 +9,11 @@ class Hall
     int numberOfSeatsPerRow;
 
 public:
+    Hall(int numberOfRows, int numberOfSeatsPerRow)
+    {
+        this->numberOfRows = numberOfRows;
+        this->numberOfSeatsPerRow = numberOfSeatsPerRow;
+    }
     Hall(int id, int numberOfRows, int numberOfSeatsPerRow)
     {
         this->id = id;
@@ -16,7 +21,7 @@ public:
         this->numberOfSeatsPerRow = numberOfSeatsPerRow;
     }
 
-    int getID() { return id; }
+    int getId() { return id; }
 
     int getNumberOfSeatsPerRow() { return numberOfSeatsPerRow; }
 

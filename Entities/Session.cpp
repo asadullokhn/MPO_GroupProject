@@ -1,7 +1,7 @@
 #include <iostream>
-#include "Hall.cpp"
-#include "Concert.cpp"
-#include "Ticket.cpp"
+#include "../Repositories/HallRepository.cpp"
+#include "../Repositories/TicketRepository.cpp"
+#include "../Repositories/ConcertRepository.cpp"
 
 using namespace std;
 
@@ -15,6 +15,15 @@ class Session
     Ticket **tickets;
 
 public:
+    Session(int id, Concert sessionConcert, Hall sessionHall, string sessionStartTime, Ticket **sessionTickets)
+        : concert(sessionConcert), hall(sessionHall), startTime(sessionStartTime), tickets(sessionTickets)
+    {
+        this->id = id;
+
+        int numberOfRows = sessionHall.getNumberOfRows();
+        int numberOfSeats = sessionHall.getNumberOfSeatsPerRow();
+    }
+
     Session(Concert sessionConcert, Hall sessionHall, string sessionStartTime)
         : concert(sessionConcert), hall(sessionHall), startTime(sessionStartTime)
     {
@@ -27,9 +36,13 @@ public:
             tickets[i] = new Ticket[numberOfSeats];
 
             for (int j = 0; j < numberOfSeats; j++)
+            {
                 tickets[i][j] = Ticket(i, j + 1);
+            }
         }
     }
+
+    int getId() { return id; }
 
     Hall getHall() { return hall; }
 
@@ -45,6 +58,10 @@ public:
             return false;
 
         tickets[row][seatNumber].setIsOccupied(true);
+
+        TicketRepository repo;
+        repo.update(tickets[row][seatNumber].getId(), true);
+
         return true;
     }
 
@@ -58,9 +75,6 @@ public:
 
     string toString()
     {
-        return "\033[1;32m" + concert.getTitle() \
-            + "\033[0m | \033[1;32m" + startTime \
-            + "\033[0m | \033[1;32mHall-" \
-            + to_string(hall.getID()) + "\033[0m";
+        return "\033[1;32m" + concert.getTitle() + "\033[0m | \033[1;32m" + startTime + "\033[0m | \033[1;32mHall-" + to_string(hall.getId()) + "\033[0m";
     }
 };
