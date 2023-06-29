@@ -14,6 +14,7 @@ public:
         this->numberOfRows = numberOfRows;
         this->numberOfSeatsPerRow = numberOfSeatsPerRow;
     }
+    
     Hall(int id, int numberOfRows, int numberOfSeatsPerRow)
     {
         this->id = id;
@@ -31,9 +32,9 @@ public:
 
     string toString()
     {
-        string hallStr = "Hall ID: " + to_string(id) + "\n";
-        hallStr += "Number of Rows: " + to_string(numberOfRows) + "\n";
-        hallStr += "Number of Seats per Row: " + to_string(numberOfSeatsPerRow) + "\n";
-        return hallStr;
+        return "\033[1;32mHall-" + to_string(id) +
+               "\033[0m | Rows: \033[1;32m" + to_string(numberOfRows) +
+               "\033[0m | Seat:\033[1;32m" + to_string(numberOfSeatsPerRow) +
+               "\033[0m | Tickets: \033[1;32m" + to_string(getNumberOfTickets()) + "\033[0m";
     }
 };

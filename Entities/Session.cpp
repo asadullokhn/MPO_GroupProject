@@ -52,6 +52,20 @@ public:
 
     string getStartTime() { return startTime; }
 
+    int getAvailableTicketsCount()
+    {
+        int numberOfRows = hall.getNumberOfRows();
+        int numberOfSeats = hall.getNumberOfSeatsPerRow();
+
+        int count = 0;
+        for (int i = 0; i < numberOfRows; i++)
+            for (int j = 0; j < numberOfSeats; j++)
+                if (!tickets[i][j].getIsOccupied())
+                    count++;
+
+        return count;
+    }
+
     bool buyTicket(int row, int seatNumber)
     {
         if (!isTicketAvailable(row, seatNumber))
@@ -75,6 +89,17 @@ public:
 
     string toString()
     {
-        return "\033[1;32m" + concert.getTitle() + "\033[0m | \033[1;32m" + startTime + "\033[0m | \033[1;32mHall-" + to_string(hall.getId()) + "\033[0m";
+        string re = "\033[1;32m" + concert.getTitle();
+
+        for (int i = 0; i < 25 - concert.getTitle().length(); i++)
+            re += " ";
+            
+        re +=
+            "\033[0m | \033[1;32m" + startTime +
+            "\033[0m | \033[1;32mHall-" + to_string(hall.getId()) +
+            "\033[0m | \033[1;32mTickets Left-" + to_string(getAvailableTicketsCount()) +
+            "\033[0m";
+
+        return re;
     }
 };

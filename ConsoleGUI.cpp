@@ -41,7 +41,10 @@ private:
         Hall hall = session.getHall();
         Ticket **tickets = session.getTickets();
 
-        cout << "Available seats for " << session.toString() << ":" << endl;
+        cout << "Available seats for:\n"
+             << session.toString() << ":" << endl
+             << endl
+             << endl;
 
         for (int i = 0; i < hall.getNumberOfRows(); i++)
         {
@@ -51,7 +54,7 @@ private:
                 if (i == row && j == column)
                     printTextWithColour("[", cyan);
 
-                printTextWithColour(ticket.getSeatNumberAsString(), ticket.getIsOccupied() ? red : yellow);
+                printTextWithColour(ticket.getIsOccupied() ? "XX" : ticket.getSeatNumberAsString(), ticket.getIsOccupied() ? red : yellow);
 
                 if (i == row && j == column)
                     printTextWithColour("]", cyan);
@@ -61,6 +64,17 @@ private:
 
             cout << endl;
         }
+    }
+
+    int getIntFromUserWithColor(ConsoleColoursEnum colourEnum = red)
+    {
+        int a;
+        
+        cout << "\033[1;" + to_string(colourEnum) + "m";
+        cin >> a;
+        cout << "\033[0m";
+
+        return a;
     }
 
 public:
@@ -74,11 +88,10 @@ public:
     void mainMenu()
     {
         system("cls");
-        int a;
 
         cout << "1. Concerts\n2. Sessions\n3. Halls\n4. Exit\n\nChoose what you want [a]: ";
-        cin >> a;
 
+        int a = getIntFromUserWithColor();
         switch (a)
         {
         case 1:
@@ -106,9 +119,8 @@ public:
             cout << concert.toString() << endl;
         }
 
-        int a;
         cout << "\n\nChoose concert [a]: ";
-        cin >> a;
+        int a = getIntFromUserWithColor();
 
         if (a > concertCount || a < 1)
         {
@@ -126,13 +138,12 @@ public:
         int sessionCount = 1;
         for (Session session : sessions)
         {
-            cout << sessionCount << ". " << session.toString() << endl;
+            cout << "[" << sessionCount << "]: " << session.toString() << endl;
             sessionCount++;
         }
 
-        int a;
-        cout << "\n\nChoose session [a]: ";
-        cin >> a;
+        cout << "\n\nChoose session [a] >> ";
+        int a = getIntFromUserWithColor();
 
         if (a > sessionCount || a < 1)
         {
@@ -153,7 +164,18 @@ public:
         {
             system("cls");
             printAvailableTicketsForSession(choosenSession, row, column);
-            cout << "\n\nUse arrows to choose seat or press ESC to exit\n";
+
+            if (!choosenSession.isTicketAvailable(row, column))
+                printTextWithColour("\nUnavailable seat", red);
+            else
+                printTextWithColour("\nAvailable seat", green);
+
+            cout << "\n\nUse ";
+            printTextWithColour("arrows", magenta);
+            cout << " to choose seat or press ";
+            printTextWithColour("ESC", magenta);
+            cout << " to exit\nTo buy a ticket double click ";
+            printTextWithColour("ENTER\n", magenta);
 
             switch (getch())
             {
@@ -188,8 +210,7 @@ public:
             case KEY_ENTER:
                 if (choosenSession.isTicketAvailable(row, column))
                 {
-
-                    printTextWithColour("Seat is Avialable, would you like to purchase? [y / n]: ", green);
+                    printTextWithColour("\n\nSeat is Avialable, would you like to purchase? [y / n]: ", green);
 
                     char yn[2];
                     cin.getline(yn, 2);
@@ -206,7 +227,7 @@ public:
                 }
                 else
                 {
-                    printTextWithColour("This Seat is NOT Available", red);
+                    printTextWithColour("Unavailable seat", red);
                     _getch();
                 }
                 break;
@@ -218,9 +239,24 @@ public:
 
     void showHalls()
     {
+        system("cls");
+
+        int hallCount = 1;
         for (Hall hall : halls)
         {
-            cout << hall.toString() << endl;
+            cout << "[" << hallCount << "]: " << hall.toString() << endl;
+            hallCount++;
+        }
+
+        cout << "\n\nChoose hall [a] >> ";
+        int a = getIntFromUserWithColor();
+
+        if (a > hallCount || a < 1)
+        {
+            cout << "Please choose correct session. Press any key to continue\n";
+            _getch();
+
+            return showHalls();
         }
     }
 };
