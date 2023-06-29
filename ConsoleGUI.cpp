@@ -69,7 +69,7 @@ private:
     int getIntFromUserWithColor(ConsoleColoursEnum colourEnum = red)
     {
         int a;
-        
+
         cout << "\033[1;" + to_string(colourEnum) + "m";
         cin >> a;
         cout << "\033[0m";
@@ -131,29 +131,49 @@ public:
         }
     }
 
-    void showSessions()
+    void showSessions(int hallId = -1, bool clearConsole = true)
     {
-        system("cls");
+        if (clearConsole)
+            system("cls");
 
         int sessionCount = 1;
+        list<Session> choosableS;
+
         for (Session session : sessions)
         {
-            cout << "[" << sessionCount << "]: " << session.toString() << endl;
-            sessionCount++;
+            if (hallId == -1)
+            {
+                cout << "[" << sessionCount << "]: " << session.toString() << endl;
+                sessionCount++;
+                choosableS.push_back(session);
+            }
+            else
+            {
+                if (session.getHall().getId() == hallId)
+                {
+                    cout << "[" << sessionCount << "]: " << session.toString() << endl;
+                    sessionCount++;
+                    choosableS.push_back(session);
+                }
+            }
         }
 
         cout << "\n\nChoose session [a] >> ";
         int a = getIntFromUserWithColor();
 
-        if (a > sessionCount || a < 1)
+        if (a >= sessionCount || a < 1)
         {
             cout << "Please choose correct session. Press any key to continue\n";
             _getch();
 
-            return showSessions();
+            return showSessions(hallId);
         }
 
-        showSessionTickets(sessions.front());
+        list<Session>::iterator it = choosableS.begin();
+        for (int i = 0; i < a-1; i++)
+            ++it;
+
+        showSessionTickets(*it);
     }
 
     void showSessionTickets(Session choosenSession)
@@ -253,10 +273,18 @@ public:
 
         if (a > hallCount || a < 1)
         {
-            cout << "Please choose correct session. Press any key to continue\n";
+            cout << "Please choose correct hall. Press any key to continue\n";
             _getch();
 
             return showHalls();
         }
+
+        list<Hall>::iterator it = halls.begin();
+        for (int i = 0; i < a - 1; i++)
+            ++it;
+
+        cout << "\n\nYou have choose: " << it->toString() << "\nSessions available in this hall:\n\n";
+
+        showSessions(it->getId(), false);
     }
 };
