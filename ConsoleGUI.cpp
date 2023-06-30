@@ -89,7 +89,27 @@ public:
     {
         system("cls");
 
-        cout << "1. Concerts\n2. Sessions\n3. Halls\n4. Exit\n\nChoose what you want [a]: ";
+        cout << "[";
+        printTextWithColour("1", red);
+        cout << "] ";
+        printTextWithColour("Concerts\n", green);
+        cout << "[";
+        printTextWithColour("2", red);
+        cout << "] ";
+        printTextWithColour("Sessions\n", green);
+        cout << "[";
+        printTextWithColour("3", red);
+        cout << "] ";
+        printTextWithColour("Halls\n", green);
+        cout << "[";
+        printTextWithColour("4", red);
+        cout << "] ";
+        printTextWithColour("Report\n\n", green);
+        cout << "[";
+        printTextWithColour("5", red);
+        cout << "] ";
+        printTextWithColour("Exit\n\n", green);
+        cout << "Choose what you want [a] >> ";
 
         int a = getIntFromUserWithColor();
         switch (a)
@@ -103,10 +123,39 @@ public:
         case 3:
             showHalls();
             break;
+        case 4:
+            showReport();
+            break;
 
         default:
             break;
         }
+    }
+
+    void showReport()
+    {
+        system("cls");
+
+        printTextWithColour("Ticket Sales Summary Report\n\n", magenta);
+        for (Session s : sessions)
+        {
+            cout << "\nConcert ";
+            printTextWithColour("hall-" + to_string(s.getHall().getId()), green);
+            cout << ": ";
+
+            printTextWithColour(s.getConcert().getTitle(), green);
+            cout << " (";
+            printTextWithColour(to_string(s.getHall().getNumberOfTickets()) + " seats", green);
+            cout << ")\nUnsold: ";
+            printTextWithColour(to_string(s.getAvailableTicketsCount()) + "\t", green);
+            cout << "Sold: ";
+            printTextWithColour(to_string(s.getHall().getNumberOfTickets() - s.getAvailableTicketsCount()) + "\n", green);
+        }
+
+        cout << "\n\nPress any key to return\n";
+        _getch();
+
+        return mainMenu();
     }
 
     void showConcerts()
@@ -116,10 +165,13 @@ public:
         int concertCount = 1;
         for (Concert concert : concerts)
         {
-            cout << concert.toString() << endl;
+            cout << "[";
+            printTextWithColour(to_string(concertCount), red);
+            cout << "]: " << concert.toString() << endl;
+            concertCount++;
         }
 
-        cout << "\n\nChoose concert [a]: ";
+        cout << "\n\nChoose concert [a] >> ";
         int a = getIntFromUserWithColor();
 
         if (a > concertCount || a < 1)
@@ -129,33 +181,81 @@ public:
 
             return showConcerts();
         }
+
+        list<Concert>::iterator it = concerts.begin();
+        for (int i = 0; i < a - 1; i++)
+            ++it;
+
+        cout << "\n\nYou have choose: " << it->toString() << "\nSessions available for this concert:\n\n";
+
+        showSessions(-1, it->getId(), false);
     }
 
-    void showSessions(int hallId = -1, bool clearConsole = true)
+    void showSessions(int hallId = -1, int concertId = -1, bool clearConsole = true)
     {
         if (clearConsole)
             system("cls");
 
         int sessionCount = 1;
-        list<Session> choosableS;
-
-        for (Session session : sessions)
+        list<Session> choosableSessions;
+        if (concertId == -1)
         {
-            if (hallId == -1)
+            for (Session session : sessions)
             {
-                cout << "[" << sessionCount << "]: " << session.toString() << endl;
-                sessionCount++;
-                choosableS.push_back(session);
-            }
-            else
-            {
-                if (session.getHall().getId() == hallId)
+                if (hallId == -1)
                 {
-                    cout << "[" << sessionCount << "]: " << session.toString() << endl;
+                    cout << "[";
+                    printTextWithColour(to_string(sessionCount), red);
+                    cout << "]: " << session.toString() << endl;
+
                     sessionCount++;
-                    choosableS.push_back(session);
+                    choosableSessions.push_back(session);
+                }
+                else
+                {
+                    if (session.getHall().getId() == hallId)
+                    {
+                        cout << "[";
+                        printTextWithColour(to_string(sessionCount), red);
+                        cout << "]: " << session.toString() << endl;
+                        sessionCount++;
+                        choosableSessions.push_back(session);
+                    }
                 }
             }
+        }
+        else
+        {
+            for (Session session : sessions)
+            {
+                if (concertId == -1)
+                {
+                    cout << "[";
+                    printTextWithColour(to_string(sessionCount), red);
+                    cout << "]: " << session.toString() << endl;
+                    sessionCount++;
+                    choosableSessions.push_back(session);
+                }
+                else
+                {
+                    if (session.getConcert().getId() == concertId)
+                    {
+                        cout << "[";
+                        printTextWithColour(to_string(sessionCount), red);
+                        cout << "]: " << session.toString() << endl;
+                        sessionCount++;
+                        choosableSessions.push_back(session);
+                    }
+                }
+            }
+        }
+
+        if (choosableSessions.size() == 0)
+        {
+            printTextWithColour("Unfortunately there is no session. Press any key to continue\n", red);
+            _getch();
+
+            return mainMenu();
         }
 
         cout << "\n\nChoose session [a] >> ";
@@ -166,11 +266,11 @@ public:
             cout << "Please choose correct session. Press any key to continue\n";
             _getch();
 
-            return showSessions(hallId);
+            return showSessions(hallId, concertId);
         }
 
-        list<Session>::iterator it = choosableS.begin();
-        for (int i = 0; i < a-1; i++)
+        list<Session>::iterator it = choosableSessions.begin();
+        for (int i = 0; i < a - 1; i++)
             ++it;
 
         showSessionTickets(*it);
@@ -264,7 +364,9 @@ public:
         int hallCount = 1;
         for (Hall hall : halls)
         {
-            cout << "[" << hallCount << "]: " << hall.toString() << endl;
+            cout << "[";
+            printTextWithColour(to_string(hallCount), red);
+            cout << "]: " << hall.toString() << endl;
             hallCount++;
         }
 
@@ -285,6 +387,6 @@ public:
 
         cout << "\n\nYou have choose: " << it->toString() << "\nSessions available in this hall:\n\n";
 
-        showSessions(it->getId(), false);
+        showSessions(it->getId(), -1, false);
     }
 };

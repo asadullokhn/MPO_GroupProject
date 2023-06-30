@@ -39,6 +39,15 @@ public:
 
     string toString()
     {
-        return "Concert: " + title + "\nRating: " + to_string(rating) + "\n";
+        string re = "\033[1;32m" + title;
+
+        for (int i = 0; i < 25 - title.length(); i++)
+            re += " ";
+
+        re += "\033[0m | Concert Id: \033[1;32m" + to_string(id) +
+              "\033[0m | Rating: \033[1;32m" + to_string(rating) +
+              "\033[0m";
+
+        return re;
     }
 };
