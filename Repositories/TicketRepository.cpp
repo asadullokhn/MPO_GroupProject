@@ -218,6 +218,36 @@ public:
         return true;
     }
 
+    bool removeAllBySession(int sessionId)
+    {
+        list<Ticket> items = getAll();
+        list<Ticket>::iterator it = items.begin();
+
+        // Deleting element from list while iterating
+        while (it != items.end())
+        {
+            if (it->getSessionId() == sessionId)
+            {
+                it = items.erase(it);
+                continue;
+            }
+            it++;
+        }
+
+        ofstream of(filePath);
+        for (Ticket ticket : items)
+            // id~sessionId~row~seat~isOccupied
+            of << to_string(ticket.getId()) + "~" +
+                      to_string(ticket.getSessionId()) + "~" +
+                      to_string(ticket.getRow()) + "~" +
+                      to_string(ticket.getSeat()) + "~" +
+                      to_string(ticket.getIsOccupied()) + "\n";
+
+        of.close();
+
+        return true;
+    }
+
     void update(int id, bool isOccupied)
     {
         list<Ticket> tickets = getAll();

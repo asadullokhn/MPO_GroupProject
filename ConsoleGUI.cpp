@@ -13,7 +13,10 @@ using namespace std;
 
 class ConsoleGUI
 {
-private:
+public:
+    virtual void mainMenu() = 0;
+
+protected:
     list<Concert> concerts;
     list<Hall> halls;
     list<Session> sessions;
@@ -21,6 +24,7 @@ private:
     ConcertRepository concertRepository;
     HallRepository hallRepository;
     SessionRepository sessionRepository;
+    TicketRepository ticketsRepository;
 
     enum ConsoleColoursEnum : int
     {
@@ -76,9 +80,12 @@ private:
 
         return a;
     }
+};
 
+class UserConsoleGUI : public ConsoleGUI
+{
 public:
-    ConsoleGUI()
+    UserConsoleGUI()
     {
         concerts = concertRepository.getAll();
         halls = hallRepository.getAll();
@@ -106,7 +113,7 @@ public:
         cout << "] ";
         printTextWithColour("Report\n\n", green);
         cout << "[";
-        printTextWithColour("5", red);
+        printTextWithColour("0", red);
         cout << "] ";
         printTextWithColour("Exit\n\n", green);
         cout << "Choose what you want [a] >> ";
@@ -132,6 +139,7 @@ public:
         }
     }
 
+private:
     void showReport()
     {
         system("cls");
@@ -388,5 +396,465 @@ public:
         cout << "\n\nYou have choose: " << it->toString() << "\nSessions available in this hall:\n\n";
 
         showSessions(it->getId(), -1, false);
+    }
+};
+
+class AdminConsoleGUI : public ConsoleGUI
+{
+public:
+    AdminConsoleGUI()
+    {
+        concerts = concertRepository.getAll();
+        halls = hallRepository.getAll();
+        sessions = sessionRepository.getAll();
+    }
+
+    void mainMenu()
+    {
+        system("cls");
+
+        cout << "[";
+        printTextWithColour("1", red);
+        cout << "] ";
+        printTextWithColour("Concerts\n", green);
+        cout << "[";
+        printTextWithColour("2", red);
+        cout << "] ";
+        printTextWithColour("Sessions\n", green);
+        cout << "[";
+        printTextWithColour("3", red);
+        cout << "] ";
+        printTextWithColour("Halls\n", green);
+        cout << "[";
+        printTextWithColour("4", red);
+        cout << "] ";
+        printTextWithColour("Report\n\n", green);
+        cout << "[";
+        printTextWithColour("0", red);
+        cout << "] ";
+        printTextWithColour("Exit\n\n", green);
+        cout << "Choose what you want [a] >> ";
+
+        int a = getIntFromUserWithColor();
+        switch (a)
+        {
+        case 1:
+            chooseAction("Concerts", 1);
+            break;
+        case 2:
+            chooseAction("Sessions", 2);
+            break;
+        case 3:
+            chooseAction("Halls", 3);
+            break;
+        case 4:
+            showReport();
+            break;
+        case 0:
+            return;
+        default:
+            return mainMenu();
+        }
+    }
+
+private:
+    void chooseAction(string action, int iaction)
+    {
+        system("cls");
+
+        if (iaction == 1)
+            for (Concert c : concerts)
+                cout << c.toString() << endl;
+        else if (iaction == 2)
+            for (Session s : sessions)
+                cout << s.toString() << endl;
+        else
+            for (Hall h : halls)
+                cout << h.toString() << endl;
+
+        printTextWithColour("\n\n" + action + "\n", green);
+        cout << "[";
+        printTextWithColour("1", red);
+        cout << "] ";
+        printTextWithColour("Add\n", green);
+        cout << "[";
+        printTextWithColour("2", red);
+        cout << "] ";
+        printTextWithColour("Delete\n\n", green);
+        cout << "[";
+        printTextWithColour("0", red);
+        cout << "] ";
+        printTextWithColour("Return\n\n", green);
+        cout << "Choose what you want [a] >> ";
+
+        int addDelete = getIntFromUserWithColor();
+        switch (addDelete)
+        {
+        case 1:
+            if (iaction == 1)
+                addDeleteConcert(true);
+            else if (iaction == 2)
+                addDeleteSession(true);
+            else
+                addDeleteHall(true);
+
+            break;
+        case 2:
+            if (iaction == 1)
+                addDeleteConcert(false);
+            else if (iaction == 2)
+                addDeleteSession(false);
+            else
+                addDeleteHall(false);
+
+            break;
+        case 0:
+            return mainMenu();
+        default:
+            return chooseAction(action, iaction);
+        }
+    }
+
+    void addDeleteConcert(bool add)
+    {
+        system("cls");
+
+        if (add)
+        {
+            string title = " ";
+            int rating;
+
+            cout << "Enter concert title: \033[1;31m";
+            getline(cin, title);
+            getline(cin, title);
+            cout << "\033[0mEnter concert rating [a]: \033[1;31m";
+            cin >> rating;
+            cout << "\033[0m";
+
+            concertRepository.create(Concert(title, rating));
+            concerts = concertRepository.getAll();
+
+            printTextWithColour("Successfully added new concert!", green);
+            cout << "\n\nPress any key to return\n";
+            _getch();
+
+            return mainMenu();
+        }
+        else
+        {
+            int concertCount = 1;
+            for (Concert concert : concerts)
+            {
+                cout << "[";
+                printTextWithColour(to_string(concertCount), red);
+                cout << "]: " << concert.toString() << endl;
+                concertCount++;
+            }
+
+            cout << "\n[";
+            printTextWithColour(to_string(0), red);
+            cout << "]: ";
+            printTextWithColour("Return", green);
+            cout << "\n\n\nChoose concert [\033[1;31ma\033[0m] >> ";
+
+            int a = getIntFromUserWithColor();
+
+            if (a == 0)
+                return mainMenu();
+
+            else if (a >= concertCount || a < 1)
+            {
+                cout << "Please choose correct concert. Press any key to continue\n";
+                _getch();
+
+                return addDeleteConcert(add);
+            }
+
+            printTextWithColour("\n\nWould you like to delete? [y / n]: ", green);
+
+            char yn;
+            cin >> yn;
+
+            if (yn == 'y')
+            {
+                list<Concert>::iterator it = concerts.begin();
+                for (int i = 0; i < a - 1; i++)
+                    ++it;
+
+                int choosenConcertId = it->getId();
+                if (sessionRepository.removeByConcert(choosenConcertId) && concertRepository.remove(choosenConcertId))
+                {   
+                    printTextWithColour("Successful!", green);
+
+                    concerts = concertRepository.getAll();
+                    sessions = sessionRepository.getAll();
+                }
+                else
+                    printTextWithColour("Unknown error occured", red);
+
+                _getch();
+            }
+
+            return addDeleteConcert(add);
+        }
+    }
+
+    void addDeleteSession(bool add)
+    {
+        system("cls");
+
+        if (add)
+        {
+            string startTime;
+
+            cout << "Enter session starting time: \033[1;31m";
+            getline(cin, startTime);
+            getline(cin, startTime);
+            cout << "\033[0m";
+
+            system("cls");
+            cout << "Choose concert for new session\n\n";
+
+            int concertCount = 1;
+            for (Concert concert : concerts)
+            {
+                cout << "[";
+                printTextWithColour(to_string(concertCount), red);
+                cout << "]: " << concert.toString() << endl;
+                concertCount++;
+            }
+
+            cout << "\n[";
+            printTextWithColour(to_string(0), red);
+            cout << "]: ";
+            printTextWithColour("Return", green);
+            cout << "\n\n\nChoose concert [\033[1;31ma\033[0m] >> ";
+
+            int choosenConcert = getIntFromUserWithColor();
+
+            if (choosenConcert == 0)
+                return mainMenu();
+
+            else if (choosenConcert >= concertCount || choosenConcert < 1)
+            {
+                cout << "Please choose correct concert. Press any key to continue\n";
+                _getch();
+
+                return addDeleteSession(add);
+            }
+
+            list<Concert>::iterator concert = concerts.begin();
+            for (int i = 0; i < choosenConcert - 1; i++)
+                ++concert;
+
+            system("cls");
+            cout << "Choose hall for new session\n\n";
+
+            int hallCount = 1;
+            for (Hall hall : halls)
+            {
+                cout << "[";
+                printTextWithColour(to_string(hallCount), red);
+                cout << "]: " << hall.toString() << endl;
+                hallCount++;
+            }
+
+            cout << "\n[";
+            printTextWithColour(to_string(0), red);
+            cout << "]: ";
+            printTextWithColour("Return", green);
+            cout << "\n\n\nChoose hall [\033[1;31ma\033[0m] >> ";
+
+            int choosenHall = getIntFromUserWithColor();
+            if (choosenHall == 0)
+                return mainMenu();
+
+            else if (choosenHall >= hallCount || choosenHall < 1)
+            {
+                cout << "Please choose correct hall. Press any key to continue\n";
+                _getch();
+
+                return addDeleteHall(add);
+            }
+
+            list<Hall>::iterator hall = halls.begin();
+            for (int i = 0; i < choosenHall - 1; i++)
+                ++hall;
+
+            Session s(*concert, *hall, startTime);
+            int sessionId = sessionRepository.create(s);
+            ticketsRepository.createAll(s.getTickets(), sessionId, hall->getNumberOfRows(), hall->getNumberOfSeatsPerRow());
+
+            printTextWithColour("Successfully added new session!", green);
+            cout << "\n\nPress any key to return\n";
+            _getch();
+            sessions = sessionRepository.getAll();
+
+            return mainMenu();
+        }
+        else
+        {
+            int sessionCount = 1;
+            for (Session session : sessions)
+            {
+                cout << "[";
+                printTextWithColour(to_string(sessionCount), red);
+                cout << "]: " << session.toString() << endl;
+                sessionCount++;
+            }
+
+            cout << "\n[";
+            printTextWithColour(to_string(0), red);
+            cout << "]: ";
+            printTextWithColour("Return", green);
+            cout << "\n\n\nChoose session [\033[1;31ma\033[0m] >> ";
+
+            int a = getIntFromUserWithColor();
+
+            if (a == 0)
+                return mainMenu();
+
+            else if (a >= sessionCount || a < 1)
+            {
+                cout << "Please choose correct session. Press any key to continue\n";
+                _getch();
+
+                return addDeleteSession(add);
+            }
+
+            printTextWithColour("\n\nWould you like to delete? [y / n]: ", green);
+
+            char yn;
+            cin >> yn;
+
+            if (yn == 'y')
+            {
+                list<Session>::iterator it = sessions.begin();
+                for (int i = 0; i < a - 1; i++)
+                    ++it;
+
+                int choosenSessionId = it->getId();
+                if (sessionRepository.remove(choosenSessionId))
+                {
+                    printTextWithColour("Successful!", green);
+                    sessions = sessionRepository.getAll();
+                }
+                else
+                    printTextWithColour("Unknown error occured", red);
+
+                _getch();
+            }
+
+            return addDeleteSession(add);
+        }
+    }
+
+    void addDeleteHall(bool add)
+    {
+        system("cls");
+
+        if (add)
+        {
+            int numberOfRows, numberOfSeatsPerRow;
+
+            cout << "Enter number of rows at new hall [a]: \033[1;31m";
+            cin >> numberOfRows;
+
+            cout << "\033[0mEnter number of seats per row [a]: \033[1;31m";
+            cin >> numberOfSeatsPerRow;
+            cout << "\033[0m";
+
+            hallRepository.create(Hall(numberOfRows, numberOfSeatsPerRow));
+            halls = hallRepository.getAll();
+
+            printTextWithColour("Successfully added new hall!", green);
+            cout << "\n\nPress any key to return\n";
+            _getch();
+
+            return mainMenu();
+        }
+        else
+        {
+            int hallCount = 1;
+            for (Hall hall : halls)
+            {
+                cout << "[";
+                printTextWithColour(to_string(hallCount), red);
+                cout << "]: " << hall.toString() << endl;
+                hallCount++;
+            }
+
+            cout << "\n[";
+            printTextWithColour(to_string(0), red);
+            cout << "]: ";
+            printTextWithColour("Return", green);
+            cout << "\n\n\nChoose hall [\033[1;31ma\033[0m] >> ";
+
+            int a = getIntFromUserWithColor();
+
+            if (a == 0)
+                return mainMenu();
+
+            else if (a >= hallCount || a < 1)
+            {
+                cout << "Please choose correct hall. Press any key to continue\n";
+                _getch();
+
+                return addDeleteHall(add);
+            }
+
+            printTextWithColour("\n\nWould you like to delete? [y / n]: ", green);
+
+            char yn;
+            cin >> yn;
+
+            if (yn == 'y')
+            {
+                list<Hall>::iterator it = halls.begin();
+                for (int i = 0; i < a - 1; i++)
+                    ++it;
+
+                int choosenHallId = it->getId();
+                if (sessionRepository.removeByHall(choosenHallId) && hallRepository.remove(choosenHallId))
+                {
+                    printTextWithColour("Successful!", green);
+
+                    halls = hallRepository.getAll();
+                    sessions = sessionRepository.getAll();
+                }
+                else
+                    printTextWithColour("Unknown error occured", red);
+
+                _getch();
+            }
+
+            return addDeleteHall(add);
+        }
+    }
+
+    void showReport()
+    {
+        system("cls");
+
+        printTextWithColour("Ticket Sales Summary Report\n\n", magenta);
+        for (Session s : sessions)
+        {
+            cout << "\nConcert ";
+            printTextWithColour("hall-" + to_string(s.getHall().getId()), green);
+            cout << ": ";
+
+            printTextWithColour(s.getConcert().getTitle(), green);
+            cout << " (";
+            printTextWithColour(to_string(s.getHall().getNumberOfTickets()) + " seats", green);
+            cout << ")\nUnsold: ";
+            printTextWithColour(to_string(s.getAvailableTicketsCount()) + "\t", green);
+            cout << "Sold: ";
+            printTextWithColour(to_string(s.getHall().getNumberOfTickets() - s.getAvailableTicketsCount()) + "\n", green);
+        }
+
+        cout << "\n\nPress any key to return\n";
+        _getch();
+
+        return mainMenu();
     }
 };

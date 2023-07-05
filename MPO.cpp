@@ -3,18 +3,32 @@
 
 int main()
 {
-    ConsoleGUI app;
-    app.mainMenu();
-    // HallRepository hallsrepo;
-    // ConcertRepository consrepo;
+    system("cls");
 
-    // SessionRepository sessionRepo;
+    cout << "The Malaysian Philharmonic Orchestra (MPO)\n\n";
+    cout << "[\033[1;31m1\033[0m] \033[1;32mUser\033[0m\n";
+    cout << "[\033[1;31m2\033[0m] \033[1;32mAdmin\033[0m\n\n";
+    cout << "[\033[1;31m0\033[0m] \033[1;32mExit\033[0m";
 
-    // Session s(consrepo.get(0).value(), hallsrepo.get(2).value(), "11:00pm");
-    // int sessionId = sessionRepo.create(s);
+    cout << "\n\nChoose option [\033[1;31ma\033[0m] >> ";
+    int a;
+    cout << "\033[1;31m";
+    cin >> a;
+    cout << "\033[0m";
 
-    // TicketRepository ticketsRepo;
-    // ticketsRepo.createAll(s.getTickets(), sessionId, s.getHall().getNumberOfRows(), s.getHall().getNumberOfSeatsPerRow());
-
+    if (a == 1)
+    {
+        UserConsoleGUI userApp;
+        userApp.mainMenu();
+    }
+    else if (a == 2)
+    {
+        AdminConsoleGUI adminApp;
+        adminApp.mainMenu();
+    }
+    else
+    {
+        return 0;
+    }
     return 0;
 }

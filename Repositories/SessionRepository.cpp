@@ -4,7 +4,6 @@
 #include <string>
 #include <list>
 #include "..\Entities\Session.cpp"
-// #include "./TicketRepository.cpp"
 
 using namespace std;
 
@@ -114,6 +113,7 @@ public:
         }
 
         file.close();
+
         return returnSessions;
     }
 
@@ -131,6 +131,7 @@ public:
         list<Session> items = getAll();
         list<Session>::iterator it = items.begin();
 
+        int choosenSessionId = id;
         // Deleting element from list while iterating
         while (it != items.end())
         {
@@ -142,15 +143,133 @@ public:
             it++;
         }
 
-        ofstream of(filePath);
+        string toWrite = "";
         for (Session s : items)
             // id~hallId~concertId~startingTime
-            of << to_string(s.getId()) + "~" +
-                      to_string(s.getHall().getId()) + "~" +
-                      to_string(s.getConcert().getId()) +
-                      s.getStartTime() + "\n";
+            toWrite += to_string(s.getId()) + "~" +
+                       to_string(s.getHall().getId()) + "~" +
+                       to_string(s.getConcert().getId()) + "~" +
+                       s.getStartTime() + "\n";
 
-        of.close();
+        ofstream of;
+        of.open(filePath, ios::out);
+
+        if (!of)
+        {
+            of.close();
+
+            ofstream file(filePath);
+            file << toWrite;
+            file.close();
+        }
+        else
+        {
+            of << toWrite;
+            of.close();
+        }
+
+        TicketRepository tickRepo;
+        tickRepo.removeAllBySession(choosenSessionId);
+
+        return true;
+    }
+
+    bool removeByConcert(int concertId)
+    {
+        list<Session> items = getAll();
+        list<Session>::iterator it = items.begin();
+
+        int choosenSessionId = -1;
+
+        // Deleting element from list while iterating
+        while (it != items.end())
+        {
+            if (it->getConcert().getId() == concertId)
+            {
+                choosenSessionId = it->getId();
+                it = items.erase(it);
+                continue;
+            }
+            it++;
+        }
+
+        string toWrite = "";
+        for (Session s : items)
+            // id~hallId~concertId~startingTime
+            toWrite += to_string(s.getId()) + "~" +
+                       to_string(s.getHall().getId()) + "~" +
+                       to_string(s.getConcert().getId()) + "~" +
+                       s.getStartTime() + "\n";
+
+        ofstream of;
+        of.open(filePath, ios::out);
+
+        if (!of)
+        {
+            of.close();
+
+            ofstream file(filePath);
+            file << toWrite;
+            file.close();
+        }
+        else
+        {
+            of << toWrite;
+            of.close();
+        }
+
+        TicketRepository tickRepo;
+        tickRepo.removeAllBySession(choosenSessionId);
+
+        return true;
+    }
+
+    bool removeByHall(int hallId)
+    {
+        list<Session> items = getAll();
+        list<Session>::iterator it = items.begin();
+
+        int choosenSessionId = -1;
+        // Deleting element from list while iterating
+        while (it != items.end())
+        {
+            if (it->getHall().getId() == hallId)
+            {
+                choosenSessionId = it->getId();
+                it = items.erase(it);
+                continue;
+            }
+            it++;
+        }
+
+        string toWrite = "";
+        for (Session s : items)
+            // id~hallId~concertId~startingTime
+            toWrite += to_string(s.getId()) + "~" +
+                       to_string(s.getHall().getId()) + "~" +
+                       to_string(s.getConcert().getId()) + "~" +
+                       s.getStartTime() + "\n";
+
+        ofstream of;
+        of.open(filePath, ios::out);
+
+        if (!of)
+        {
+            of.close();
+
+            ofstream file(filePath);
+            file << toWrite;
+            file.close();
+        }
+        else
+        {
+            of << toWrite;
+            of.close();
+        }
+
+        TicketRepository tickRepo;
+        tickRepo.removeAllBySession(choosenSessionId);
+
         return true;
     }
 };
