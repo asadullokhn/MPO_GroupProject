@@ -96,10 +96,32 @@ public:
         for (int i = 0; i < 25 - concert.getTitle().length(); i++)
             re += " ";
 
-        re +=
-            "\033[0m | \033[1;32m" + startTime +
-            "\033[0m | \033[1;32mHall-" + to_string(hall.getId()) +
-            "\033[0m | \033[1;32mTickets Left-" + to_string(getAvailableTicketsCount()) +
+        // space for startTime
+        re += "\033[0m | \033[1;32m";
+        for (int i = 0; i < 12 - startTime.length(); i++)
+        {
+            if (i == (12 - startTime.length()) / 2)
+            {
+                re += startTime;
+                continue;
+            }
+            re += " ";
+        }
+
+        // space for hall id
+        string hallIdAsString = to_string(hall.getId());
+        re += "\033[0m | \033[1;32m";
+        for (int i = 0; i < (4 - hallIdAsString.length()); i++)
+        {
+            if (i == (4 - hallIdAsString.length()) / 2)
+            {
+                re += "Hall-" + hallIdAsString;
+                continue;
+            }
+            re += " ";
+        }
+
+        re += "\033[0m | \033[1;32mTickets Left-" + to_string(getAvailableTicketsCount()) +
               "\033[0m";
 
         return re;
