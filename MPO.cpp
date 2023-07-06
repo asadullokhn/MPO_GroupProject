@@ -40,9 +40,6 @@ int main()
         AdminConsoleGUI adminApp;
         adminApp.mainMenu();
     }
-    else
-    {
-        return 0;
-    }
+    
     return 0;
 }
