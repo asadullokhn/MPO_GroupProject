@@ -10,11 +10,14 @@ private:
     int rating;
 
 public:
+    // Constructor for creating a new object
     Concert(string title, int rating)
     {
         this->title = title;
         this->rating = rating;
     }
+
+    // Constructor for loading an object from database
     Concert(int id, string title, int rating)
     {
         this->id = id;

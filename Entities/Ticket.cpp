@@ -13,14 +13,14 @@ protected:
     bool isOccupied = false;
 
 public:
+    // Constructor for creating new objects in array
     Ticket() {}
 
+    // Constructor for creating a new object for new session
     Ticket(int ticketRow, int ticketSeat)
         : row(ticketRow), seat(ticketSeat) {}
 
-    Ticket(int ticketSessionId, int ticketRow, int ticketSeat)
-        : sessionId(ticketSessionId), row(ticketRow), seat(ticketSeat) {}
-
+    // Constructor for loading an object from database
     Ticket(int ticketId, int ticketSessionId, int ticketRow, int ticketSeat, bool isTicketOccupied)
         : id(ticketId), sessionId(ticketSessionId), row(ticketRow), seat(ticketSeat), isOccupied(isTicketOccupied) {}
 

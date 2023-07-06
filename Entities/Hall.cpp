@@ -9,12 +9,14 @@ class Hall
     int numberOfSeatsPerRow;
 
 public:
+    // Constructor for creating a new object
     Hall(int numberOfRows, int numberOfSeatsPerRow)
     {
         this->numberOfRows = numberOfRows;
         this->numberOfSeatsPerRow = numberOfSeatsPerRow;
     }
-    
+
+    // Constructor for loading an object from database
     Hall(int id, int numberOfRows, int numberOfSeatsPerRow)
     {
         this->id = id;

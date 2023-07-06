@@ -15,6 +15,7 @@ class Session
     Ticket **tickets;
 
 public:
+    // Constructor for loading an object from database
     Session(int id, Concert sessionConcert, Hall sessionHall, string sessionStartTime, Ticket **sessionTickets)
         : concert(sessionConcert), hall(sessionHall), startTime(sessionStartTime), tickets(sessionTickets)
     {
@@ -24,6 +25,7 @@ public:
         int numberOfSeats = sessionHall.getNumberOfSeatsPerRow();
     }
 
+    // Constructor for creating a new object
     Session(Concert sessionConcert, Hall sessionHall, string sessionStartTime)
         : concert(sessionConcert), hall(sessionHall), startTime(sessionStartTime)
     {
@@ -90,15 +92,15 @@ public:
     string toString()
     {
         string re = "\033[1;32m" + concert.getTitle();
-
+        // space after title
         for (int i = 0; i < 25 - concert.getTitle().length(); i++)
             re += " ";
-            
+
         re +=
             "\033[0m | \033[1;32m" + startTime +
             "\033[0m | \033[1;32mHall-" + to_string(hall.getId()) +
             "\033[0m | \033[1;32mTickets Left-" + to_string(getAvailableTicketsCount()) +
-            "\033[0m";
+              "\033[0m";
 
         return re;
     }
