@@ -582,7 +582,7 @@ private:
                     ++it;
 
                 int choosenConcertId = it->getId();
-                if (sessionRepository.removeByConcert(choosenConcertId) && concertRepository.remove(choosenConcertId))
+                if (sessionRepository.removeByConcert(choosenConcertId) && concertRepository.removeById(choosenConcertId))
                 {   
                     printTextWithColour("Successful!", green);
 
@@ -734,7 +734,7 @@ private:
                     ++it;
 
                 int choosenSessionId = it->getId();
-                if (sessionRepository.remove(choosenSessionId))
+                if (sessionRepository.removeById(choosenSessionId))
                 {
                     printTextWithColour("Successful!", green);
                     sessions = sessionRepository.getAll();
@@ -815,7 +815,7 @@ private:
                     ++it;
 
                 int choosenHallId = it->getId();
-                if (sessionRepository.removeByHall(choosenHallId) && hallRepository.remove(choosenHallId))
+                if (sessionRepository.removeByHall(choosenHallId) && hallRepository.removeById(choosenHallId))
                 {
                     printTextWithColour("Successful!", green);
 

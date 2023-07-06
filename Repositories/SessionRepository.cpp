@@ -3,47 +3,20 @@
 #include <fstream>
 #include <string>
 #include <list>
+#include "./BaseRepository.cpp"
 #include "..\Entities\Session.cpp"
 
 using namespace std;
 
-class SessionRepository
+class SessionRepository : public BaseRepository<Session>
 {
-protected:
-    string filePath = "./Data/sessions.txt";
-    string props[4];
-
-    int len(string str)
-    {
-        int length = 0;
-        for (int i = 0; str[i] != '\0'; i++)
-            length++;
-
-        return length;
-    }
-
-    void split(string str, char seperator)
-    {
-        int currIndex = 0, i = 0;
-        int startIndex = 0, endIndex = 0;
-        while (i <= len(str))
-        {
-            if (str[i] == seperator || i == len(str))
-            {
-                endIndex = i;
-                string subStr = "";
-                subStr.append(str, startIndex, endIndex - startIndex);
-                props[currIndex] = subStr;
-                currIndex += 1;
-                startIndex = endIndex + 1;
-            }
-            i++;
-        }
-    }
-
 public:
-    // returns new session id
-    int create(Session session)
+    SessionRepository()
+    {
+        filePath = "./Data/sessions.txt";
+    }
+
+    int create(Session session) override
     {
         list<Session> sessions = getAll();
         int lastId = 0;
@@ -60,40 +33,16 @@ public:
                          to_string(session.getConcert().getId()) + "~" +
                          session.getStartTime() + "\n";
 
-        ofstream of;
-        of.open(filePath, ios::app);
-
-        if (!of)
-        {
-            of.close();
-
-            ofstream file(filePath);
-            file << toWrite;
-            file.close();
-        }
-        else
-        {
-            of << toWrite;
-            of.close();
-        }
+        _writeToFile(toWrite, ios::app);
 
         return lastId;
     }
 
-    list<Session> getAll()
+    list<Session> getAll() override
     {
-        string str;
         list<Session> returnSessions{};
-
         ifstream file(filePath);
-        if (!file)
-        {
-            file.close();
-
-            ofstream f(filePath);
-            f << "";
-            f.close();
-        }
+        string str;
 
         ConcertRepository concertRepo;
         HallRepository hallRepo;
@@ -117,7 +66,7 @@ public:
         return returnSessions;
     }
 
-    optional<Session> get(int id)
+    optional<Session> get(int id) override
     {
         for (Session h : getAll())
             if (h.getId() == id)
@@ -126,7 +75,7 @@ public:
         return nullopt;
     }
 
-    bool remove(int id)
+    bool removeById(int id) override
     {
         list<Session> items = getAll();
         list<Session>::iterator it = items.begin();
@@ -143,35 +92,7 @@ public:
             it++;
         }
 
-        string toWrite = "";
-        for (Session s : items)
-            // id~hallId~concertId~startingTime
-            toWrite += to_string(s.getId()) + "~" +
-                       to_string(s.getHall().getId()) + "~" +
-                       to_string(s.getConcert().getId()) + "~" +
-                       s.getStartTime() + "\n";
-
-        ofstream of;
-        of.open(filePath, ios::out);
-
-        if (!of)
-        {
-            of.close();
-
-            ofstream file(filePath);
-            file << toWrite;
-            file.close();
-        }
-        else
-        {
-            of << toWrite;
-            of.close();
-        }
-
-        TicketRepository tickRepo;
-        tickRepo.removeAllBySession(choosenSessionId);
-
-        return true;
+        return _remove(items, choosenSessionId);
     }
 
     bool removeByConcert(int concertId)
@@ -193,35 +114,7 @@ public:
             it++;
         }
 
-        string toWrite = "";
-        for (Session s : items)
-            // id~hallId~concertId~startingTime
-            toWrite += to_string(s.getId()) + "~" +
-                       to_string(s.getHall().getId()) + "~" +
-                       to_string(s.getConcert().getId()) + "~" +
-                       s.getStartTime() + "\n";
-
-        ofstream of;
-        of.open(filePath, ios::out);
-
-        if (!of)
-        {
-            of.close();
-
-            ofstream file(filePath);
-            file << toWrite;
-            file.close();
-        }
-        else
-        {
-            of << toWrite;
-            of.close();
-        }
-
-        TicketRepository tickRepo;
-        tickRepo.removeAllBySession(choosenSessionId);
-
-        return true;
+        return _remove(items, choosenSessionId);
     }
 
     bool removeByHall(int hallId)
@@ -242,30 +135,23 @@ public:
             it++;
         }
 
-        string toWrite = "";
-        for (Session s : items)
-            // id~hallId~concertId~startingTime
-            toWrite += to_string(s.getId()) + "~" +
-                       to_string(s.getHall().getId()) + "~" +
-                       to_string(s.getConcert().getId()) + "~" +
-                       s.getStartTime() + "\n";
+        return _remove(items, choosenSessionId);
+    }
 
+private:
+    bool _remove(list<Session> sessions, int choosenSessionId)
+    {
         ofstream of;
         of.open(filePath, ios::out);
 
-        if (!of)
-        {
-            of.close();
+        for (Session s : sessions)
+            // id~hallId~concertId~startingTime
+            of << to_string(s.getId()) + "~" +
+                      to_string(s.getHall().getId()) + "~" +
+                      to_string(s.getConcert().getId()) + "~" +
+                      s.getStartTime() + "\n";
 
-            ofstream file(filePath);
-            file << toWrite;
-            file.close();
-        }
-        else
-        {
-            of << toWrite;
-            of.close();
-        }
+        of.close();
 
         TicketRepository tickRepo;
         tickRepo.removeAllBySession(choosenSessionId);

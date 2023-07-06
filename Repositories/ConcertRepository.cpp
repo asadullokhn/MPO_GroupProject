@@ -7,44 +7,16 @@
 
 using namespace std;
 
-class ConcertRepository
+class ConcertRepository : public BaseRepository<Concert>
 {
-protected:
-    string filePath = "./Data/concerts.txt";
-    string props[3];
-
-    int len(string str)
-    {
-        int length = 0;
-        for (int i = 0; str[i] != '\0'; i++)
-            length++;
-
-        return length;
-    }
-
-    void split(string str, char seperator)
-    {
-        int currIndex = 0, i = 0;
-        int startIndex = 0, endIndex = 0;
-        while (i <= len(str))
-        {
-            if (str[i] == seperator || i == len(str))
-            {
-                endIndex = i;
-                string subStr = "";
-                subStr.append(str, startIndex, endIndex - startIndex);
-                props[currIndex] = subStr;
-                currIndex += 1;
-                startIndex = endIndex + 1;
-            }
-            i++;
-        }
-    }
-
 public:
-    void create(Concert concert)
+    ConcertRepository()
     {
+        filePath = "./Data/concerts.txt";
+    }
 
+    int create(Concert concert) override
+    {
         list<Concert> cons = getAll();
         int lastId = 0;
 
@@ -56,39 +28,16 @@ public:
 
         // 45~Salom Nomi~45
         string toWrite = to_string(lastId) + "~" + concert.getTitle() + "~" + to_string(concert.getRating()) + "\n";
+        _writeToFile(toWrite, ios::app);
 
-        ofstream of;
-        of.open(filePath, ios::app);
-
-        if (!of)
-        {
-            of.close();
-
-            ofstream file(filePath);
-            file << toWrite;
-            file.close();
-        }
-        else
-        {
-            of << toWrite;
-            of.close();
-        }
+        return lastId;
     }
 
-    list<Concert> getAll()
+    list<Concert> getAll() override
     {
-        string str;
         list<Concert> returnConcerts{};
-
         ifstream file(filePath);
-        if (!file)
-        {
-            file.close();
-
-            ofstream f(filePath);
-            f << "";
-            f.close();
-        }
+        string str;
 
         while (getline(file, str))
         {
@@ -103,7 +52,7 @@ public:
         return returnConcerts;
     }
 
-    optional<Concert> get(int id)
+    optional<Concert> get(int id) override
     {
         for (Concert c : getAll())
             if (c.getId() == id)
@@ -112,7 +61,7 @@ public:
         return nullopt;
     }
 
-    bool remove(int id)
+    bool removeById(int id) override
     {
         list<Concert> items = getAll();
         list<Concert>::iterator it = items.begin();
@@ -128,11 +77,11 @@ public:
             it++;
         }
 
-        ofstream of(filePath);
+        ofstream file(filePath);
         for (Concert c : items)
-            of << to_string(c.getId()) + "~" + c.getTitle() + "~" + to_string(c.getRating()) + "\n";
+            file << to_string(c.getId()) + "~" + c.getTitle() + "~" + to_string(c.getRating()) + "\n";
 
-        of.close();
+        file.close();
 
         return true;
     }

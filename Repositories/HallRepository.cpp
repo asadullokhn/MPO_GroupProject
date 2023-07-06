@@ -7,47 +7,19 @@
 
 using namespace std;
 
-class HallRepository
+class HallRepository : public BaseRepository<Hall>
 {
-protected:
-    string filePath = "./Data/halls.txt";
-    string props[3];
-
-    int len(string str)
-    {
-        int length = 0;
-        for (int i = 0; str[i] != '\0'; i++)
-            length++;
-
-        return length;
-    }
-
-    void split(string str, char seperator)
-    {
-        int currIndex = 0, i = 0;
-        int startIndex = 0, endIndex = 0;
-        while (i <= len(str))
-        {
-            if (str[i] == seperator || i == len(str))
-            {
-                endIndex = i;
-                string subStr = "";
-                subStr.append(str, startIndex, endIndex - startIndex);
-                props[currIndex] = subStr;
-                currIndex += 1;
-                startIndex = endIndex + 1;
-            }
-            i++;
-        }
-    }
-
 public:
-    void create(Hall hall)
+    HallRepository()
     {
+        filePath = "./Data/halls.txt";
+    }
 
+    int create(Hall hall) override
+    {
         list<Hall> halls = getAll();
-        int lastId = 0;
 
+        int lastId = 0;
         if (halls.size() > 0)
         {
             Hall h = halls.back();
@@ -57,39 +29,17 @@ public:
         string toWrite = to_string(lastId) + "~" +
                          to_string(hall.getNumberOfRows()) + "~" +
                          to_string(hall.getNumberOfSeatsPerRow()) + "\n";
+        
+        _writeToFile(toWrite, ios::app);
 
-        ofstream of;
-        of.open(filePath, ios::app);
-
-        if (!of)
-        {
-            of.close();
-
-            ofstream file(filePath);
-            file << toWrite;
-            file.close();
-        }
-        else
-        {
-            of << toWrite;
-            of.close();
-        }
+        return lastId;
     }
 
-    list<Hall> getAll()
+    list<Hall> getAll() override
     {
-        string str;
         list<Hall> returnHalls{};
-
         ifstream file(filePath);
-        if (!file)
-        {
-            file.close();
-
-            ofstream f(filePath);
-            f << "";
-            f.close();
-        }
+        string str;
 
         while (getline(file, str))
         {
@@ -104,7 +54,7 @@ public:
         return returnHalls;
     }
 
-    optional<Hall> get(int id)
+    optional<Hall> get(int id) override
     {
         for (Hall h : getAll())
             if (h.getId() == id)
@@ -113,7 +63,7 @@ public:
         return nullopt;
     }
 
-    bool remove(int id)
+    bool removeById(int id) override
     {
         list<Hall> items = getAll();
         list<Hall>::iterator it = items.begin();
@@ -129,12 +79,11 @@ public:
             it++;
         }
 
-        ofstream of(filePath);
+        ofstream file(filePath);
         for (Hall h : items)
-            of << to_string(h.getId()) + "~" + to_string(h.getNumberOfRows()) + "~" + to_string(h.getNumberOfSeatsPerRow()) + "\n";
+            file << to_string(h.getId()) + "~" + to_string(h.getNumberOfRows()) + "~" + to_string(h.getNumberOfSeatsPerRow()) + "\n";
 
-        of.close();
-
+        file.close();
         return true;
     }
 };

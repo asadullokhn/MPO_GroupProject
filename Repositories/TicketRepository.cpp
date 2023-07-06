@@ -7,46 +7,19 @@
 
 using namespace std;
 
-class TicketRepository
+class TicketRepository : public BaseRepository<Ticket>
 {
-protected:
-    string filePath = "./Data/tickets.txt";
-    string props[5];
-
-    int len(string str)
-    {
-        int length = 0;
-        for (int i = 0; str[i] != '\0'; i++)
-            length++;
-
-        return length;
-    }
-
-    void split(string str, char seperator)
-    {
-        int currIndex = 0, i = 0;
-        int startIndex = 0, endIndex = 0;
-        while (i <= len(str))
-        {
-            if (str[i] == seperator || i == len(str))
-            {
-                endIndex = i;
-                string subStr = "";
-                subStr.append(str, startIndex, endIndex - startIndex);
-                props[currIndex] = subStr;
-                currIndex += 1;
-                startIndex = endIndex + 1;
-            }
-            i++;
-        }
-    }
-
 public:
-    void create(Ticket ticket)
+    TicketRepository()
+    {
+        filePath = "./Data/tickets.txt";
+    }
+
+    int create(Ticket ticket) override
     {
         list<Ticket> tickets = getAll();
-        int lastId = 0;
 
+        int lastId = 0;
         if (tickets.size() > 0)
         {
             Ticket h = tickets.back();
@@ -60,22 +33,9 @@ public:
                          to_string(ticket.getSeat()) + "~" +
                          to_string(ticket.getIsOccupied()) + "\n";
 
-        ofstream of;
-        of.open(filePath, ios::app);
+        _writeToFile(toWrite, ios::app);
 
-        if (!of)
-        {
-            of.close();
-
-            ofstream file(filePath);
-            file << toWrite;
-            file.close();
-        }
-        else
-        {
-            of << toWrite;
-            of.close();
-        }
+        return lastId;
     }
 
     void createAll(Ticket **ticketArray, int sessionId, int numberOfRows, int numberOfSeats)
@@ -117,20 +77,11 @@ public:
         }
     }
 
-    list<Ticket> getAll()
+    list<Ticket> getAll() override
     {
-        string str;
         list<Ticket> returnTickets{};
-
         ifstream file(filePath);
-        if (!file)
-        {
-            file.close();
-
-            ofstream f(filePath);
-            f << "";
-            f.close();
-        }
+        string str;
 
         while (getline(file, str))
         {
@@ -179,7 +130,7 @@ public:
         return arr;
     }
 
-    optional<Ticket> get(int id)
+    optional<Ticket> get(int id) override
     {
         for (Ticket h : getAll())
             if (h.getId() == id)
@@ -188,7 +139,7 @@ public:
         return nullopt;
     }
 
-    bool remove(int id)
+    bool removeById(int id) override
     {
         list<Ticket> items = getAll();
         list<Ticket>::iterator it = items.begin();
@@ -204,16 +155,16 @@ public:
             it++;
         }
 
-        ofstream of(filePath);
+        ofstream file(filePath);
         for (Ticket ticket : items)
             // id~sessionId~row~seat~isOccupied
-            of << to_string(ticket.getId()) + "~" +
-                      to_string(ticket.getSessionId()) + "~" +
-                      to_string(ticket.getRow()) + "~" +
-                      to_string(ticket.getSeat()) + "~" +
-                      to_string(ticket.getIsOccupied()) + "\n";
+            file << to_string(ticket.getId()) + "~" +
+                        to_string(ticket.getSessionId()) + "~" +
+                        to_string(ticket.getRow()) + "~" +
+                        to_string(ticket.getSeat()) + "~" +
+                        to_string(ticket.getIsOccupied()) + "\n";
 
-        of.close();
+        file.close();
 
         return true;
     }
@@ -234,16 +185,16 @@ public:
             it++;
         }
 
-        ofstream of(filePath);
+        ofstream file(filePath);
         for (Ticket ticket : items)
             // id~sessionId~row~seat~isOccupied
-            of << to_string(ticket.getId()) + "~" +
-                      to_string(ticket.getSessionId()) + "~" +
-                      to_string(ticket.getRow()) + "~" +
-                      to_string(ticket.getSeat()) + "~" +
-                      to_string(ticket.getIsOccupied()) + "\n";
+            file << to_string(ticket.getId()) + "~" +
+                        to_string(ticket.getSessionId()) + "~" +
+                        to_string(ticket.getRow()) + "~" +
+                        to_string(ticket.getSeat()) + "~" +
+                        to_string(ticket.getIsOccupied()) + "\n";
 
-        of.close();
+        file.close();
 
         return true;
     }
@@ -251,22 +202,20 @@ public:
     void update(int id, bool isOccupied)
     {
         list<Ticket> tickets = getAll();
-        string toWrite = "";
 
+        ofstream file(filePath);
         for (Ticket t : tickets)
         {
             if (t.getId() == id)
                 t.setIsOccupied(isOccupied);
 
-            toWrite += to_string(t.getId()) + "~" +
-                       to_string(t.getSessionId()) + "~" +
-                       to_string(t.getRow()) + "~" +
-                       to_string(t.getSeat()) + "~" +
-                       to_string(t.getIsOccupied()) + "\n";
+            file << to_string(t.getId()) + "~" +
+                        to_string(t.getSessionId()) + "~" +
+                        to_string(t.getRow()) + "~" +
+                        to_string(t.getSeat()) + "~" +
+                        to_string(t.getIsOccupied()) + "\n";
         }
 
-        ofstream file(filePath);
-        file << toWrite;
         file.close();
     }
 };
