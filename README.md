@@ -13,6 +13,6 @@ The system is also designed with proper validation mechanisms to ensure data int
 To install and use this software, follow these steps:
 
 ```bash
-git clone https://github.com/asadullokhn/MPO_GroupProject.git
-cd MPO_GroupProject
-... (run with your c++ compiler)
+$ git clone https://github.com/asadullokhn/MPO_GroupProject.git
+$ cd MPO_GroupProject
+$ (your c++ compiler) MPO.cpp -o MPO
